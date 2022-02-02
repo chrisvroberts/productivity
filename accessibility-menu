@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+
+import gi
+gi.require_version('Gtk', '3.0')
+
+from gi.repository import Gtk
+import re
+import sys
+
+def apply_mnemonics(strings):
+  used = []
+  non_mnem_idx = []
+  for idx, string in enumerate(strings):
+    mnems = re.findall('_.', string)
+    mnems = list(filter(lambda m: m != '__', mnems))
+    if mnems:
+      # Only look at first as that is what GTK will use.
+      used.append(mnems[0][1])
+    else:
+      non_mnem_idx.append(idx)
+  for idx in non_mnem_idx:
+    first_ch = next(filter(lambda ch: ch not in used, strings[idx]), None)
+    if first_ch:
+      strings[idx] = strings[idx].replace(first_ch, '_' + first_ch, 1)
+      used.append(first_ch)
+    else:
+      # No free characters to set as mneomic. Leave as is
+      pass
+
+# Handler that is called when a menu item is selected. It
+# prints the menu item's label to stdout so it can be read
+# by the calling program. It removes an mnemonic underscores.
+def print_label(win):
+  label_text = win.get_label()
+  # Remove mnemonics taking care to handle underscore
+  # escaping.
+  label_text_stripped = re.sub('_(.)', '\\1', label_text)
+  # Don't print new line. This simplifies comparison of
+  # output.
+  print(label_text_stripped, end='')
+
+# A menu with no items is not expected so is treated as an
+# error.
+if len(sys.argv) == 1:
+  print("No options provided", file=sys.stderr)
+  exit(1)
+
+# Create the menu and the required containing window (which
+# will never be displayed).
+window = Gtk.Window()
+menu = Gtk.Menu()
+
+options = sys.argv[1:]
+apply_mnemonics(options)
+
+# Add each item in the order they were provided.
+# "new_with_mnemonic" adds a shortcut for letters
+# preceeded by with an underscore.
+for opt in options:
+  item = Gtk.MenuItem.new_with_mnemonic(opt)
+  item.connect("activate", print_label)
+  menu.append(item)
+
+# Ensure the Gtk app is killed when then menu is hidden.
+# Importantly this works even if the user clicks off the
+# menu rather than selecting an item.
+menu.connect("hide", Gtk.main_quit)
+
+# Run up the application. Don't call "show_all" on the "window"
+# object to keep the menu minimal.
+menu.show_all()
+# Open the menu next to the current device position to
+# limit mouse movement required for selection.
+# TODO: Gtk.Menu.popup_for_device is deprecated. Consider changing
+#       to use popup_at_pointer (which requires a stubbed Event) or
+#       popup_at_rect (which requires a realized Window).
+menu.popup_for_device(None, None, None, None, None, 0, Gtk.get_current_event_time())
+Gtk.main()
