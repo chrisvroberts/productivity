@@ -21,6 +21,7 @@ command = [
   "US to UK",
   "speech-to-text insert",
   "selected text to speech",
+  "en-to-de",
 ]
 
 # This runs the script and 'selection' will be set to the
@@ -84,6 +85,8 @@ elif selection == "speech-to-text insert":
   engine.run_script("InsertSpeech")
 elif selection == "selected text to speech":
   engine.run_script("SpeakSelection")
+elif selection == "en-to-de":
+  engine.run_script("EnToDe")
 elif selection == "":
   # Do nothing - you get here if you didn't pick anything from
   # the menu.
