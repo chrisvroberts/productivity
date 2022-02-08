@@ -64,8 +64,8 @@ elif selection == "US to UK":
   # if that is useful.
   txt = clipboard.get_selection()
   substitutions = [
-    ('ize', 'ise'),
-    ('yze', 'yse'),
+    ('ize', 'ise', False),
+    ('yze', 'yse', False),
     ('([^l])l(ed|ing|er)\\b', '\\1ll\\2', True),
     ('ense\\b', 'ence', True),
   ]
