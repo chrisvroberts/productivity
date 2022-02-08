@@ -19,6 +19,8 @@ command = [
   "display _window info",
   "show selection",
   "US to UK",
+  "speech-to-text insert",
+  "selected text to speech",
 ]
 
 # This runs the script and 'selection' will be set to the
@@ -78,6 +80,10 @@ elif selection == "US to UK":
   # This seems like a hacky way to replace the text... I suspect
   # there is a better way.
   keyboard.send_keys(txt)
+elif selection == "speech-to-text insert":
+  engine.run_script("InsertSpeech")
+elif selection == "selected text to speech":
+  engine.run_script("SpeakSelection")
 elif selection == "":
   # Do nothing - you get here if you didn't pick anything from
   # the menu.
